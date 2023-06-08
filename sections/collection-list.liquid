@@ -1,0 +1,248 @@
+<!-- collection-list.liquid -->
+{{ 'section-collection-list.css' | asset_url | stylesheet_tag }}
+
+{%- style -%}
+  .section-{{ section.id }}-padding {
+    padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}
+    px;
+    padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}
+    px;
+  }
+
+  @media screen and (min-width: 750px) {
+    .section-{{ section.id }}-padding {
+      padding-top: {{ section.settings.padding_top }}
+      px;
+      padding-bottom: {{ section.settings.padding_bottom }}
+      px;
+    }
+  }
+{%- endstyle -%}
+
+
+<div class="color-{{ section.settings.color_scheme }} gradient ">
+  <div class="collection-list-wrapper page-width {% if section.settings.show_view_all == false or section.blocks.size > collections.size %} no-mobile-link{% endif %} section-{{ section.id }}-padding">
+    {% assign collection = section.settings.products_per_page %}
+    <ul class="collection-list {{ section.settings.enable_slider }}">
+      {%- for collection in collections limit: collection -%}
+        <li class="list-item-{{ forloop.index }}">
+          {%- if collection.image -%}
+            {%- assign collection_image = collection.image -%}
+          {%- elsif collection.products.first and collection.products.first.images != empty -%}
+            {%- assign collection_image = collection.products.first.featured_image -%}
+          {%- else -%}
+            {%- assign collection_image = blank -%}
+          {%- endif -%}
+          <a href="{{ collection.url }}">
+            <div class="image">
+              {% assign image_data = collection_image %}
+              {% if image_data != blank %}
+                <img
+                  srcset="{% if image_data.width >= 350 %}
+                  {{ image_data | image_url: width: 350 }} 350w,{% endif %}
+                {% if image_data.width >= 750 %}
+                  {{ image_data | image_url: width: 750 }} 750w,{% endif %}
+                {% if image_data.width >= 1100 %}
+                  {{ image_data | image_url: width: 1100 }} 1100w,{% endif %}
+                {% if image_data.width >= 1500 %}
+                  {{ image_data | image_url: width: 1500 }} 1500w,{% endif %}
+                {% if image_data.width >= 2200 %}
+                  {{ image_data | image_url: width: 2200 }} 2200w,{% endif %}
+                {% if image_data.width >= 3000 %}
+                  {{ image_data | image_url: width: 3000 }} 3000w,{% endif %}
+                {{ image_data | image_url }} {{ image_data.width }}w"
+                sizes="(min-width: {{ settings.page_width }}px) {{ settings.page_width | minus: 100 }}px, (min-width: 750px) calc(100vw - 10rem), 100vw"
+                src="{{ image_data | image_url: width: 1100 }}"
+                loading="lazy"
+                class="{{ section.settings.looks_image_height }}"
+                alt="{{ image_data.alt | escape }}">
+              {% else %}
+                {% render 'placeholder-img' %}
+              {% endif %}
+            </div>
+            <h2>{{ collection.title }}</h2>
+          </a>
+        </li>
+      {%- endfor -%}
+    </ul>
+    {% if section.settings.show_view_all %}
+      <div class="collection-view-all">
+        <a class="btn" href="/collections">View All</a>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+{% schema %}
+  {
+    "name": "t:sections.collection-list.name",
+    "tag": "section",
+    "class": "section section-collection-list",
+    "max_blocks": 15,
+    "settings": [
+      {
+        "type": "text",
+        "id": "title",
+        "default": "Collections",
+        "label": "t:sections.collection-list.settings.title.label"
+      },
+      {
+        "type": "range",
+        "id": "products_per_page",
+        "min": 4,
+        "max": 24,
+        "step": 1,
+        "default": 6,
+        "label": "Collection Per Page"
+      },
+      {
+        "type": "checkbox",
+        "id": "show_view_all",
+        "default": false,
+        "label": "Show View all Button"
+      },
+      {
+        "type": "header",
+        "content": "Section Padding heading"
+      }, {
+        "type": "range",
+        "id": "padding_top",
+        "min": 0,
+        "max": 100,
+        "step": 4,
+        "unit": "px",
+        "label": "Padding top",
+        "default": 36
+      }, {
+        "type": "range",
+        "id": "padding_bottom",
+        "min": 0,
+        "max": 100,
+        "step": 4,
+        "unit": "px",
+        "label": "Padding bottom",
+        "default": 36
+      }, {
+        "type": "header",
+        "content": "Slider Settings"
+      }, {
+        "type": "select",
+        "id": "enable_slider",
+        "options": [
+          {
+            "value": "slider_desktop",
+            "label": "True"
+          }, {
+            "value": "collection_grid",
+            "label": "False"
+          }
+        ],
+        "default": "collection_grid",
+        "label": "Select Slider Status",
+        "info": "You can enable or disable slider from here"
+      }, {
+        "type": "select",
+        "id": "dots",
+        "options": [
+          {
+            "value": "true",
+            "label": "True"
+          }, {
+            "value": "false",
+            "label": "False"
+          }
+        ],
+        "default": "true",
+        "label": "Slider Dots",
+        "info": "You can enable or disable dots for slider"
+      }, {
+        "type": "select",
+        "id": "arrow",
+        "options": [
+          {
+            "value": "true",
+            "label": "True"
+          }, {
+            "value": "false",
+            "label": "False"
+          }
+        ],
+        "default": "true",
+        "label": "Slider Arrow",
+        "info": "You can enable or disable Arrow for slider"
+      }, {
+        "type": "select",
+        "id": "infinite",
+        "options": [
+          {
+            "value": "true",
+            "label": "True"
+          }, {
+            "value": "false",
+            "label": "False"
+          }
+        ],
+        "default": "true",
+        "label": "infinite"
+      }, {
+        "type": "range",
+        "id": "slides_count",
+        "min": 1,
+        "max": 5,
+        "step": 1,
+        "default": 2,
+        "label": "Slides Count"
+      }, {
+        "type": "range",
+        "id": "slider_speed",
+        "min": 500,
+        "max": 5000,
+        "step": 500,
+        "default": 1000,
+        "label": "Slides Speed"
+      }, {
+        "type": "select",
+        "id": "autoplay",
+        "options": [
+          {
+            "value": "true",
+            "label": "True"
+          }, {
+            "value": "false",
+            "label": "false"
+          }
+        ],
+        "default": "false",
+        "label": "Autoplay",
+        "info": "Here you can manage the Autoplay of slider"
+      }
+    ],
+    "blocks": [
+      {
+        "type": "featured_collection",
+        "name": "t:sections.collection-list.blocks.featured_collection.name",
+        "settings": [
+          {
+            "type": "collection",
+            "id": "collection",
+            "label": "t:sections.collection-list.blocks.featured_collection.settings.collection.label"
+          }
+        ]
+      }
+    ],
+    "presets": [
+      {
+        "name": "t:sections.collection-list.presets.name",
+        "blocks": [
+          {
+            "type": "featured_collection"
+          }, {
+            "type": "featured_collection"
+          }, {
+            "type": "featured_collection"
+          }
+        ]
+      }
+    ]
+  }
+{% endschema %}
